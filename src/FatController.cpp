@@ -122,7 +122,7 @@ extern OptionContainer o;
 extern bool is_daemonised;
 
 #ifdef ENABLE_PFFW
-extern int pf_fileid;
+int pf_fileid;
 #endif
 
 
@@ -1036,9 +1036,8 @@ int fc_controlit()   //
     thread_id = "master: ";
 
 #ifdef ENABLE_PFFW
-    pf_fileid = open(/dev/pf);
+    pf_fileid = open("/dev/pf",O_RDWR|O_NONBLOCK);
     if( pf_fileid < 0) {
-        // error open /dev/pf - exit
         E2LOGGER_warning("Unable to open /dev/pf - I will not be able to determine the original IP and port on redirects - errno ", errno);
     };
 #endif

@@ -139,6 +139,10 @@ class Socket : public BaseSocket
 
     bool getIeof();
 
+    // local & remote addresses
+    struct sockaddr_in my_adr;
+    struct sockaddr_in peer_adr;
+
     private:
     SSL *ssl = NULL;
     SSL_CTX *ctx = NULL;
@@ -146,8 +150,6 @@ class Socket : public BaseSocket
     bool issslserver = false;
 
     // local & remote addresses
-    struct sockaddr_in my_adr;
-    struct sockaddr_in peer_adr;
     int my_port = 0;
     std::string my_addr;
     int client_port = 0;

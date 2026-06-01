@@ -55,6 +55,9 @@ extern OptionContainer o;
 extern std::atomic<bool> ttg;
 
 #ifdef ENABLE_PFFW
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
 #include <net/pfvar.h>
 extern int pf_fileid;
 #endif
@@ -3366,17 +3369,17 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
     pnl.direction = PF_OUT;
     pnl.af = AF_INET;
     pnl.proto = IPPROTO_TCP;
-    pnl.saddr.v4 = inet_hston(checkme.ip.c_str());
-    memcpy(&pnl.daddr.v4 = &peercon->my_adr.sin_addr.s_addr, sizeof pnl.saddr.v4);
-    pnl.sport = &peercon->peer_addr.sin_port;
-    pnl.dport = &peercon->my_adr.sin_port;
+    pnl.saddr.v4.s_addr = inet_pton(AF_INET,checkme.clientip.c_str(),&(pnl.saddr.v4));
+    memcpy(&pnl.daddr.v4, &peerconn.my_adr.sin_addr.s_addr, sizeof pnl.saddr.v4);
+    pnl.sport = peerconn.peer_adr.sin_port;
+    pnl.dport = peerconn.my_adr.sin_port;
 
     if (ioctl(pf_fileid, DIOCNATLOOK, &pnl) == -1) {
         E2LOGGER_error("Failed to get client's original destination IP: ", strerror(errno));
         return false;
         } else {
         char res[INET_ADDRSTRLEN];
-        checkme.orig_ip = inet_ntop(AF_INET,pnl.rdaddr.v4,res,sizeof(res));
+        checkme.orig_ip = inet_ntop(AF_INET,&pnl.rdaddr.v4,res,sizeof(res));
         // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
         if (o.net.check_ip.size() > 0) {
             for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {

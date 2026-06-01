@@ -14,6 +14,7 @@
 #include <atomic>
 
 #ifdef ENABLE_PFFW
+#include <net/if.h>
 #include <net/pfvar.h>
 #endif
 
