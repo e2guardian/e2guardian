@@ -49,6 +49,11 @@ LoggerConfigurator loggerConfig(&e2logger);
 bool is_daemonised;
 bool force_nodeamon = false;
 
+#ifdef ENABLE_PFFW
+int pf_fileid;
+#endif
+
+
 // regexp used during URL decoding by HTTPHeader
 // we want it compiled once, not every time it's used, so do so on startup
 RegExp urldecode_re;
@@ -140,6 +145,14 @@ int main(int argc, char *argv[]) {
     }
 
     prepareRegExp();
+
+#ifdef ENABLE_PFFW
+    pf_fileid = open("/dev/pf",O_RDWR|O_NONBLOCK);
+    if( pf_fileid < 0) {
+        E2LOGGER_warning("Unable to open /dev/pf - I will not be able to determine the original IP and port on",
+                         " redirects - errno ", errno);
+    };
+#endif
 
     return startDaemon();
 
