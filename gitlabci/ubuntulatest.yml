@@ -3,7 +3,7 @@ build:noble:
   image: amd64/ubuntu:24.04
   resource_group: buildub24
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR  
   script:
@@ -17,7 +17,7 @@ build:noble:
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf
       libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl3t64 git ca-certificates lsb-release
     - cd $CI_PROJECT_DIR && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
-    - make 
+    - make -j 4
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 package:noble:
@@ -27,7 +27,7 @@ package:noble:
   dependencies:
     - build:noble
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR  
   variables:
@@ -63,7 +63,7 @@ test:noble:
   dependencies:
     - package:noble
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:

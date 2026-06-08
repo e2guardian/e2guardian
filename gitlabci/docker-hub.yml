@@ -1,8 +1,7 @@
 variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-amd64
   CONTAINER_BUILD_NOPROD_NAME_AMD64: $HUB_REGISTRY_IMAGE:build-noprod-amd64
-  CONTAINER_CLIENT_IMAGE: debian:latest      
-
+  
 docker-hub-build:
   stage: Docker-hub-build
   image: docker:dind
