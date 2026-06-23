@@ -38,7 +38,8 @@ To set up MITM:
 	Generate the root CA certificate
 
 	    openssl req -new -x509 -days 3650 -sha256 -key private_root.pem \
-			-out my_rootCA.crt
+			-out my_rootCA.crt \
+                        -addext "keyUsage=critical,digitalSignature,keyCertSign"
 
 	Create a DER format version of root certificate
 
