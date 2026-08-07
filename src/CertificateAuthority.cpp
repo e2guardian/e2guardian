@@ -408,9 +408,9 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
     //create a name section
     ERR_clear_error();
-    X509_NAME *name = X509_get_subject_name(newCert);
+    X509_NAME *name = X509_NAME_new();
     if (name == NULL) {
-        log_ssl_errors("get_subject_name on cert failed for %s", commonname);
+        log_ssl_errors("X509_NAME_new failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
@@ -422,14 +422,23 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
     if (rc < 1) {
         log_ssl_errors("NAME_add_entry_by_txt on cert failed for %s", commonname);
-    //    X509_NAME_free(name);
+        X509_NAME_free(name);
         X509_free(newCert);
         return NULL;
     }
 
+    ERR_clear_error();
+    if (X509_set_subject_name(newCert, name) < 1) {
+        log_ssl_errors("set_subject_name on cert failed for %s", commonname);
+        X509_NAME_free(name);
+        X509_free(newCert);
+        return NULL;
+    }
+    X509_NAME_free(name);
+
     //set the issuer name of the cert to the cn of the ca
     ERR_clear_error();
-    X509_NAME *subjectName = X509_get_subject_name(_caCert);
+    const X509_NAME *subjectName = X509_get_subject_name(_caCert);
     if (subjectName == NULL) {
         log_ssl_errors("get_subject_name on ca_cert failed for %s", commonname);
         X509_free(newCert);
@@ -456,7 +465,9 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     ERR_clear_error();
     AUTHORITY_KEYID *akid = AUTHORITY_KEYID_new();
     akid->keyid = ASN1_OCTET_STRING_new();
-    ASN1_OCTET_STRING_set(akid->keyid,auth_key_id->data,auth_key_id->length);
+    ASN1_OCTET_STRING_set(akid->keyid,
+                           ASN1_STRING_get0_data(auth_key_id),
+                           ASN1_STRING_length(auth_key_id));
     X509_EXTENSION *ext = NULL;
     ext = X509V3_EXT_i2d(NID_authority_key_identifier,0,akid);
     if( !X509_add_ext(newCert,ext, -1 )) {
