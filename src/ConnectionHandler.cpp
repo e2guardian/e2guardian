@@ -845,7 +845,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             DEBUG_trace("start Authentication");
             overide_persist = false;
             if (!persistent_authed) {
-                bool only_ip_auth;
+                bool only_ip_auth = false;
                 if (header.isProxyRequest) {
                     filtergroup = o.filter.default_fg;
                     SBauth.is_proxy = true;
@@ -861,7 +861,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 DEBUG_proxy("isProxyRequest is ", String(header.isProxyRequest),
                             " only_ip_auth is ", String(only_ip_auth) );
 
-                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header, checkme,
+                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock,
+                            header, checkme,
                             only_ip_auth,
                             checkme.isconnect)) {
                     if (checkme.auth_result == E2AUTH_407_SENT) {

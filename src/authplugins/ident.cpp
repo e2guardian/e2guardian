@@ -26,7 +26,8 @@ class identinstance : public AuthPlugin
     public:
     identinstance(ConfigVar &definition)
         : AuthPlugin(definition){
-        client_ip_based = true;    // not sure if this is correct!!
+        client_ip_based = true;    // not sure if this is correct!! - It is, although ident return does not return
+        // fixed user based on ip, this enables logic to work as expected.
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm);
     int init(void *args);
@@ -45,9 +46,15 @@ AuthPlugin *identcreate(ConfigVar &definition)
 
 // ident server username extraction
 // checkme: needs better error reporting
-int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm)
+int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string,
+                            bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm)
 {
     std::string clientip;
+
+    if(!cm.request_header->isProxyRequest) {  //request is transparent so ident can't work - fix for bug #889
+        return E2AUTH_NOMATCH;
+    };
+    // Note ident will only work with use_xforwardedfor if the in-front proxy is on the same host as e2g
     bool use_xforwardedfor;
     use_xforwardedfor = false;
     if (o.use_xforwardedfor == 1) {
@@ -94,7 +101,8 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
         DEBUG_auth("Error writing to ident connection to: ", clientip);
         iq.close(); // close conection to client
-        return -1;
+        return E2AUTH_NOMATCH;   // fix for bug #889
+        //return -1;
     }
     DEBUG_auth("wrote ident request to:", clientip);
 
@@ -102,7 +110,8 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     try {
         iq.getLine(buff, 8192, 5000);
     } catch (std::exception &e) {
-        return -2;
+        return E2AUTH_NOMATCH;   // fix for bug #889
+        //return -2;
     }
     String temp;
     temp = buff; // convert to String
@@ -111,7 +120,8 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     iq.close(); // close conection to client
     temp = temp.after(":");
     if (!temp.before(":").contains("USERID")) {
-        return -3;
+        return E2AUTH_NOMATCH;   // fix for bug #889
+        //return -3;
     }
     temp = temp.after(":");
     temp = temp.after(":");

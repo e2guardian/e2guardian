@@ -229,7 +229,7 @@ struct NetworkOptions
 
     std::deque<String> filter_ip;
     std::deque<String> check_ip;
-    std::deque<String> xforwardedfor_filter_ip;
+    std::deque<String> xforwardedfor_filter_ip; //TODO: Is this ever populated??
     std::deque<String> filter_ports;
     std::deque<String> check_ports;
     std::deque<String> TLS_filter_ports;
