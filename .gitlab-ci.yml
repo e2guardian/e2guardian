@@ -19,7 +19,6 @@ stages:
 - Docker-hub-build-arm
 - Docker-hub-test-arm
 - Docker-hub-pushtag-arm
-- Chatgtp
 
 hadolint:
   image: hadolint/hadolint:latest-debian
@@ -36,5 +35,3 @@ include:
   - 'gitlabci/docker-hub.yml'
   - 'gitlabci/ubuntulatest.yml'
   - 'gitlabci/armdebian.yml'
-  - project: 'fredbcode/chatgpt-ci'
-    file: 'chatgpte2.yml'
