@@ -589,7 +589,7 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
     std::queue<newreplacement *> matchqueue;
 
     for (i = 0; i < s; i++) {
-        re = &((*foc).content_regexp_list_comp[i]);
+        re = ((*foc).content_regexp_list_comp[i]);
         if (re->match(data, Rre)) {
             replacement = &((*foc).content_regexp_list_rep[i]);
             //replen = replacement->length();

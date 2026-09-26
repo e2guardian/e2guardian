@@ -584,6 +584,7 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             }
             if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log.log_location))
                 return false;
+            DEBUG_config("Access log location is ",log.log_location);
         }
 
         temp = cr.findoptionS("accesslogformatconfig");

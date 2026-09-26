@@ -744,9 +744,8 @@ bool String::isIp() {
     RegExp ipv4;
     ipv4.comp("(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])");
 
-    RegResult rs;
 
-    if(ipv4.match((*this).c_str(), rs))
+    if(ipv4.match((*this).c_str()))
         return true;
 
     return false;

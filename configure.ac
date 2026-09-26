@@ -213,21 +213,51 @@ AC_DEFINE_UNQUOTED([__LOGLOCATION],["${E2LOGLOCATION}"], "path of log directory"
 
 PKG_PROG_PKG_CONFIG
 
+nopcre=true
+
+# asking user if they want PCRE2 support
+AC_MSG_CHECKING(for PCRE2 support)
+AC_ARG_ENABLE(
+pcre2,
+[AS_HELP_STRING([--enable-pcre2@<:@=yes@:>@],[Enable support for the PCRE2 library])],
+[ if test "x$enableval" = "xno"; then
+pcre2=false
+AC_MSG_RESULT(no)
+else
+pcre2=true
+nopcre=false
+AC_MSG_RESULT(yes)
+fi
+],
+[ # disable by default
+pcre2=false
+AC_MSG_RESULT(yes)
+]
+)
+
+if test "x$pcre2" = "xtrue"; then
+PKG_CHECK_MODULES([PCRE2],[libpcre2-posix >= 10.42])
+AC_DEFINE([HAVE_PCRE2],[],[Define to enable PCRE2 support])
+PCRE_LIBS="-lpcre2-8 ${PCRE_LIBS}"
+fi
+AM_CONDITIONAL(HAVE_PCRE2, test "x$pcre2" = "xtrue")
+
 # asking user if they want PCRE support
 AC_MSG_CHECKING(for PCRE support)
 AC_ARG_ENABLE(
 pcre,
-[AS_HELP_STRING([--enable-pcre@<:@=yes@:>@],[Enable support for the PCRE library])],
+[AS_HELP_STRING([--enable-pcre@<:@=no@:>@],[Enable support for the PCRE library])],
 [ if test "x$enableval" = "xno"; then
 pcre=false
 AC_MSG_RESULT(no)
 else
 pcre=true
+nopcre=false
 AC_MSG_RESULT(yes)
 fi
 ],
-[ # enable by default
-pcre=true
+[ # disable by default
+pcre=false
 AC_MSG_RESULT(yes)
 ]
 )
@@ -236,10 +266,14 @@ if test "x$pcre" = "xtrue"; then
 PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
 AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
 PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
-else
-AC_CHECK_FUNCS([regcomp])
 fi
 AM_CONDITIONAL(HAVE_PCRE, test "x$pcre" = "xtrue")
+
+if $nopcre; then
+AC_CHECK_FUNCS([regcomp])
+AC_DEFINE([HAVE_NO_PCRE],[],[Define when neither PCRE2 or PCRE is defined])
+fi
+AM_CONDITIONAL(HAVE_NO_PCRE, test "x$nopcre" = "xtrue")
 
 AC_CHECK_HEADERS([pthread.h], [ LIBS="-lpthread ${LIBS}"], [
 echo "pthread.h required, failing"

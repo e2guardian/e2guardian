@@ -58,9 +58,12 @@ int pf_fileid;
 // we want it compiled once, not every time it's used, so do so on startup
 RegExp urldecode_re;
 
+#ifdef LEAVE_OUT_FOR_NOW
 #ifdef HAVE_PCRE
 // regexes used for embedded URL extraction by NaughtyFilter
+//TODO: these don't appear to be used any where - remove them??
 RegExp absurl_re, relurl_re;
+#endif
 #endif
 
 // DECLARATIONS
@@ -351,12 +354,14 @@ int startDaemon() {
 
 void prepareRegExp() {
     urldecode_re.comp("%[0-9a-fA-F][0-9a-fA-F]"); // regexp for url decoding
-
+#ifdef LEAVE_OUT_FOR_NOW
 #ifdef HAVE_PCRE
+//TODO: these don't appear to be used any where - remove them??
     // todo: these only work with PCRE enabled (non-greedy matching).
     // change them, or make them a feature for which you need PCRE?
     absurl_re.comp("[\"'](http|ftp)://.*?[\"']"); // find absolute URLs in quotes
     relurl_re.comp("(href|src)\\s*=\\s*[\"'].*?[\"']"); // find relative URLs in quotes
+#endif
 #endif
 
 }

@@ -114,19 +114,19 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
 {
     // compile regexps for determining whether a list entry is an IP, a subnet (IP + mask), or a range
     RegExp matchIP, matchSubnet, matchRange, matchCIDR;
-#ifdef HAVE_PCRE
-    matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-    matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
-    matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-#else
+#ifdef HAVE_NO_PCRE
     matchIP.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
     matchSubnet.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
     matchCIDR.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$");
     matchRange.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}-[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+#else
+    matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
+    matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 #endif
-    RegResult Rre;
+
+ //   RegResult Rre;
 
     // read in the file
     String line;
@@ -149,13 +149,13 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
 
         DEBUG_trace("");
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
-        if (matchIP.match(line.toCharArray(),Rre)) {
+        if (matchIP.match(line.toCharArray())) {
             struct in_addr address;
             if (inet_aton(line.toCharArray(), &address)) {
                 uint32_t addr = ntohl(address.s_addr);
                 iplist.push_back(addr);
             }
-        } else if (matchSubnet.match(line.toCharArray(),Rre)) {
+        } else if (matchSubnet.match(line.toCharArray())) {
             struct in_addr address;
             struct in_addr addressmask;
             String subnet(line.before("/"));
@@ -168,7 +168,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
                 s.endaddr = addr | ~imask;
                 iprangelist.push_back(s);
             }
-        } else if (matchCIDR.match(line.toCharArray(),Rre)) {
+        } else if (matchCIDR.match(line.toCharArray())) {
             struct in_addr address;
             struct in_addr addressmask;
             String subnet(line.before("/"));
@@ -186,7 +186,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
                     iprangelist.push_back(s);
                 }
             }
-        } else if (matchRange.match(line.toCharArray(),Rre)) {
+        } else if (matchRange.match(line.toCharArray())) {
             struct in_addr addressstart;
             struct in_addr addressend;
             String start(line.before("-"));

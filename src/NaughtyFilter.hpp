@@ -61,7 +61,7 @@ class NaughtyFilter
     bool isIPHostnameStrip(String url);
 
     RegExp ch_isiphost;
-    RegResult Rch_isiphost;
+    //RegResult Rch_isiphost;
 
     bool gomitm = false;
     bool nomitm = false;
@@ -81,7 +81,7 @@ class NaughtyFilter
     bool issemiexception = false;
     bool isourwebserver = false;
     bool wasclean = false;
-    bool cachehit = false;
+    //bool cachehit = false;
     bool isbypass = false;
     bool iscookiebypass = false;
     bool isvirusbypass = false;
@@ -173,7 +173,7 @@ class NaughtyFilter
     std::string whatIsNaughty;
     std::string whatIsNaughtyLog;
     std::string whatIsNaughtyCategories;
-    std::string whatIsNaughtyDisplayCategories;
+    std::string whatIsNaughtyDisplayCategories;  // Note:  is this ever used now??? PIP
     std::string clienthost;
     std::string clientip;
     std::deque<String> destIPs_dq;

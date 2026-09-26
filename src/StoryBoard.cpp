@@ -40,6 +40,7 @@ extern OptionContainer o;
 // Constructor - set default values
 StoryBoard::StoryBoard() {
     fnt_cnt = 0;
+    reset();
 }
 
 // delete the memory block when the class is destryed
@@ -49,6 +50,11 @@ StoryBoard::~StoryBoard() {
 
 //  clear & reset all values
 void StoryBoard::reset() {
+    int i = 0;
+    while (i < ENT_STORY_MAX_SIZE) {
+        entrys[i] = 0;
+        i++;
+    }
 }
 
  bool StoryBoard::readTopFile(const char *filename, ListMeta &LMeta, LanguageContainer *lc) {
@@ -667,7 +673,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
         E2LOGGER_storytrace("SB: ", i->file_lineno,
                             (i->isif ? " if(" : " ifnot("),
-                            F->getState(i->state), ",",
+                            F->getState(i->state),"=",target, ",",
                             i->list_name, ") is ",
                             (state_result ? "true" : "false"));
 
@@ -822,9 +828,21 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 case SB_FUNC_SETSEARCHTERM:
                     if (cm.result.size() > 0) {
                         cm.isSearch = true;
-                        cm.search_words = cm.result.sort_search();
+                        //E2LOGGER_warning("searchterm result is ", cm.result);
+                        cm.result = cm.request_header->decode(cm.result, true);
+                        //E2LOGGER_warning("searchterm result after decode is ", cm.result);
+                        if (cm.result.contains("&")) {   // fixes case where regexp does not consume all of url
+                            cm.result = cm.result.before("&");
+                        }
                         cm.search_terms = cm.result;
-                        cm.search_terms.swapChar('+', ' ');
+                        if (cm.search_terms.contains("+")) {
+                            cm.search_terms.swapChar('+', ' ');
+                        }
+                        if (cm.result.contains(" ")) {
+                            cm.result.swapChar(' ', '+');
+                        }
+                        //E2LOGGER_warning("searchterm result after swap is ", cm.result);
+                        cm.search_words = cm.result.sort_search();
                     };
                     break;
                 case SB_FUNC_SETGODIRECT:

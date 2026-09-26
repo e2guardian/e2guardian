@@ -4,8 +4,8 @@
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
-#ifndef __HPP_REGEXP
-#define __HPP_REGEXP
+#ifndef __E2G_HPP_REGEXP
+#define __E2G_HPP_REGEXP
 #define MAX_SUB_EXPRESSIONS 1024
 
 // INCLUDES
@@ -14,7 +14,14 @@
 
 #ifdef HAVE_PCRE
 #include <pcreposix.h>
-#else
+#endif
+
+#ifdef HAVE_PCRE2
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+#endif
+
+#ifdef HAVE_NO_PCRE
 #include <regex.h>
 #endif
 
@@ -60,28 +67,42 @@ class RegExp
     RegExp();
     // destructor - delete regexp if compiled
     ~RegExp();
+
+#ifdef NOTDEFINED
     // copy constructor
     RegExp(const RegExp &r );
+#endif
 
 
     // compile the given regular expression
     bool comp(const char *exp);
     // match the given text against the pre-compiled expression
-    bool match(const char *text, struct RegResult& rs);
+    bool match(const char *text, struct RegResult& rs);   //where results are needed
+    bool match(const char *text);   //where results are not needed
+    bool basematch(const char *text, struct RegResult* rs= nullptr);
 
     // how many matches did the last run generate?
     // did it generate any at all?
 
-    // faster equivalent of STL::Search
+#ifdef NOTDEFINED
+    // faster equivalent of STL::Search -  ??? never used??? PIP
     char *search(char *file, char *fileend, char *phrase, char *phraseend);
+#endif
 
     private:
 
 // the expression itself
+#ifdef HAVE_PCRE2
+    pcre2_code *reg = nullptr;
+    int errorcode= 0;
+    size_t erroroffset = 0;
+    uint32_t pattern_size = 0;
+#else
      regex_t reg;
+#endif
 
     // whether it's been pre-compiled
-    bool wascompiled;
+    bool wascompiled = false;
 
     // the uncompiled form of the expression (checkme: is this only used
     // for debugging purposes?)

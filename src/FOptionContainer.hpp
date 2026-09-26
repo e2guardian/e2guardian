@@ -113,7 +113,7 @@ public:
 
 
     // regex search & replace lists
-    std::deque <RegExp> content_regexp_list_comp;
+    std::deque <RegExp*> content_regexp_list_comp;
     std::deque <String> content_regexp_list_rep;
     RegExp isiphost;
 

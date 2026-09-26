@@ -65,8 +65,8 @@ FOptionContainer::~FOptionContainer()
 void FOptionContainer::reset()
 {
     language_path = o.config.languagepath; // inherit main config setting as default
-            DEBUG_config(" language_path is ", language_path);
-    DEBUG_config(" main languagepath is ", o.config.languagepath);
+            //DEBUG_config(" language_path is ", language_path);
+    //DEBUG_config(" main languagepath is ", o.config.languagepath);
     conffile.clear();
     have_group_language = false;
     if (neterr_page != nullptr)
@@ -100,6 +100,10 @@ void FOptionContainer::resetJustListData()
 
     //	conffile.clear();
 
+    while(!content_regexp_list_comp.empty()) {
+        delete content_regexp_list_comp.front();
+        content_regexp_list_comp.pop_front();
+    }
     content_regexp_list_comp.clear();
     content_regexp_list_rep.clear();
 }
@@ -480,18 +484,19 @@ bool FOptionContainer::read(const char *filename) {
             // get default banned page for this profile
             String html_template(findoptionS("htmltemplate"));
             DEBUG_config(" language_path is ", language_path);
-            DEBUG_config(" html_tempale is ", html_template);
+            DEBUG_config(" html_template is ", html_template);
             if (html_template != "") {
                 if (html_template.contains("__LANGDIR__")) {
                     html_template.replaceall("__LANGDIR__",language_path.c_str());
-                    DEBUG_config(" html_tempale after replace is ", html_template);
+                    DEBUG_config(" html_template after replace is ", html_template);
                 }
                 if (!html_template.startsWith("/")) {   // to allow backward compatibility
                     html_template = language_path.c_str() + html_template;
-                    DEBUG_config(" html_tempale after non-full path is ", html_template);
+                    DEBUG_config(" html_template after non-full path is ", html_template);
                 }
-                DEBUG_config(" html_tempale is ", html_template);
+                DEBUG_config(" html_template is ", html_template);
                 banned_page = new HTMLTemplate;
+                DEBUG_config("new HTMLTemplate created ");
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
@@ -499,7 +504,9 @@ bool FOptionContainer::read(const char *filename) {
             } else {
                 html_template = language_path;
                 html_template += "template.html";
+                DEBUG_config(" html_template is ", html_template);
                 banned_page = new HTMLTemplate;
+                DEBUG_config("new HTMLTemplate created ");
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
                     return false;
@@ -527,6 +534,7 @@ bool FOptionContainer::read(const char *filename) {
                 if (!neterr_template.startsWith("/")) {   // to allow backward compatibility
                     neterr_template = language_path.c_str() + neterr_template;
                 }
+                DEBUG_config(" neterr_template is ", neterr_template);
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
@@ -536,12 +544,13 @@ bool FOptionContainer::read(const char *filename) {
             } else {
                 neterr_template = language_path;
                 neterr_template += "neterr_template.html";
+                DEBUG_config(" neterr_template is ", neterr_template);
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);
                     return false;
 	        }
-	    } 
+	    }
         }
 
         if (findoptionS("nonstandarddelimiter") == "off") {

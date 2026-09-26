@@ -1,4 +1,4 @@
-This is the v5.6.0 development version
+This is the v5.6.1 development version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files since v4.
@@ -114,7 +114,7 @@ lists to be loaded via stdin.  See notes/lists_via_stdin.
 OPENSSL v1.1 SUPPORT
 
     Supports OpenSSL v1.1 
-    Note: Support for pre v1.1 OpenSSL versions is withdrawn in v5.5.
+    Note: Support for pre v1.1 OpenSSL versions was withdrawn in v5.5.
 
 % OPTION FOR PHRASE LISTS
 
@@ -126,7 +126,8 @@ BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
 
 Requests without SNI and those not TLS no longer tried for MITM.
 
-New option to use original ip & port (currently Linux only)
+New option to use original ip & port
+    (currently stable under Linux only, testable in BSD/PF with --enable-pf_fw option)
 
 RELATIVE PATHS IN .Includes and list definition
 
@@ -202,6 +203,8 @@ OTHER enhancements
 
  alert.log option to enable reporting of key category violations by external email alert and reporting systems
 
+ 'Auto' MITM certificate generation implimented
+
  V5.6
 
  FLEXIBLE LOG FORMATTING
@@ -230,6 +233,8 @@ OTHER enhancements
      Logic changed so that destination IP DNS lookup can be made earlier when
      required for Geolocation lookup.
 
+ REGEXP REVIEW INCLUDING SUPPORT FOR PCRE2
+
   OTHER enhancements
 
      New RequestID (consisting of ThreadID + StartUtime) can be used in logs to
@@ -238,19 +243,7 @@ OTHER enhancements
 
      Amend dnsauth to accept fg group names as well as fg group nummbers
 
-   MITM certificate generation improved
-
-    Change default generatedcertstart to 1st Apr 2024
-    Change method of generating Certificate serial numbers
-
-    When generating Serial numbers from host names a hash os the rootCA,
-    start_date and end_date is added to the CN to produce a unique serial
-    number.  This means that the serial number for a host will change if
-    the rootCA or start/end date is changed.  This will force a re-generation
-    of the certificate.
-
-    The generated cert store should be cleared to remove the now stale
-    certificates previously generated.
+     Support for BSD with PF firewall so original IP/port can be detected
 
 TESTING -  
 ---------
@@ -292,6 +285,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 13 December 2023
+Philip Pearce 4 September 2026
 
 

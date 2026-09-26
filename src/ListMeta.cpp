@@ -53,6 +53,10 @@ String ListMeta::list_type(int type) {
 void ListMeta::reset() {
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         o.lm.deRefList(i->list_ref);
+        while(!i->comp.empty()) {
+            delete i->comp.front();
+            i->comp.pop_front();
+        }
         i->comp.clear();
         i->reg_list_ref.clear();
     }
@@ -583,8 +587,8 @@ bool ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &site
 }
 
 bool ListMeta::isIPHostname(String url) {
-    RegResult Rre;
-    if (!isiphost.match(url.toCharArray(), Rre)) {
+    //RegResult Rre;
+    if (!isiphost.match(url.toCharArray())) {
         return true;
     }
     return false;
@@ -601,7 +605,7 @@ bool ListMeta::precompileregexps() {
 
 // read regexp url list
 bool ListMeta::readRegExMatchFile(const char *filename,const char *list_pwd, const char *listname, unsigned int &listref,
-                                  std::deque<RegExp> &list_comp, std::deque<String> &list_source,
+                                  std::deque<RegExp*> &list_comp, std::deque<String> &list_source,
                                   std::deque<unsigned int> &list_ref) {
     int result = o.lm.newItemList(filename, list_pwd, true, 32, true);
     if (result < 0) {
@@ -614,24 +618,27 @@ bool ListMeta::readRegExMatchFile(const char *filename,const char *list_pwd, con
 
 // NOTE TO SELF - MOVE TO LISTCONTAINER TO SOLVE FUE2E
 // compile regexp url list
-bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
+bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp*> &list_comp,
                                      std::deque<String> &list_source, std::deque<unsigned int> &list_ref) {
     for (unsigned int i = 0; i < (*o.lm.l[list]).morelists.size(); i++) {
         if (!compileRegExMatchFile((*o.lm.l[list]).morelists[i], list_comp, list_source, list_ref)) {
             return false;
         }
     }
-    RegExp r;
+    RegExp *r;
     bool rv = true;
     int len = (*o.lm.l[list]).getListLength();
     String source;
     for (int i = 0; i < len; i++) {
         source = (*o.lm.l[list]).getItemAtInt(i).c_str();
-        rv = r.comp(source.toCharArray());
+        r = new RegExp;
+        rv = r->comp(source.toCharArray());
         if (rv == false) {
             E2LOGGER_error("Error compiling regexp:", source);
+            delete r;
             return false;
         }
+        DEBUG_regexp("Address of regexp is ", r);
         list_comp.push_back(r);
         list_source.push_back(source);
         list_ref.push_back(list);
@@ -642,7 +649,7 @@ bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list
 
 // content and URL regular expression replacement files
 bool ListMeta::readRegExReplacementFile(const char *filename, const char *list_pwd, const char *listname, unsigned int &listid,
-                                        std::deque<String> &list_rep, std::deque<RegExp> &list_comp) {
+                                        std::deque<String> &list_rep, std::deque<RegExp*> &list_comp) {
     int result = o.lm.newItemList(filename,list_pwd, true, 32, true);
     if (result < 0) {
         E2LOGGER_error("Error opening ", listname);
@@ -653,7 +660,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *list_p
         //(*o.lm.l[listid]).doSort(true);
         (*o.lm.l[listid]).used = true;
     }
-    RegExp r;
+    RegExp *r;
     bool rv = true;
     String regexp;
     String replacement;
@@ -671,9 +678,11 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *list_p
         if (regexp.length() < 1) { // allow replace with nothing
             continue;
         }
-        rv = r.comp(regexp.toCharArray());
+        r = new RegExp;
+        rv = r->comp(regexp.toCharArray());
         if (rv == false) {
             E2LOGGER_error("Error compiling regexp: ", (*o.lm.l[listid]).getItemAtInt(i) );
+            delete r;
             return false;
         }
         list_comp.push_back(r);
@@ -683,13 +692,13 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *list_p
 }
 
 // is this URL in the given regexp URL list?
-int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
+int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp *> &list_comp, std::deque<unsigned int> &list_ref,
                               unsigned int list, String &lastcategory) {
 
     DEBUG_regexp("inRegExpURLList: ", urlin);
     // check parent list's time limit
     if (o.lm.l[list]->isNow()) {
-        RegResult Rre;
+        // RegResult Rre;
         String url = urlin;
         url.removeWhiteSpace(); // just in case of weird browser crap
         url.toLower();
@@ -715,9 +724,10 @@ int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std:
 			url = ptp + "//" + url;*/
         DEBUG_regexp("inRegExpURLList (processed): ", url);
         unsigned int i = 0;
-        for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
+        for ( auto j = list_comp.begin(); j != list_comp.end(); j++) {
+            //for (std::deque<RegExp*>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
             if (o.lm.l[list_ref[i]]->isNow()) {
-                if (j->match(url.toCharArray(), Rre))
+                if ((*j)->match(url.toCharArray()))
                     return i;
             }
             else
@@ -733,7 +743,7 @@ int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std:
 
 // Does a regexp search and replace.
 // urlRegExp Code originally from from Ton Gorter 2004
-bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list) {
+bool ListMeta::regExp(String &line, std::deque<RegExp*> &regexp_list, std::deque<String> &replacement_list) {
     RegExp *re;
     RegResult Rre;
     String replacement;
@@ -756,7 +766,7 @@ bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<
     // iterate over our list of precompiled regexes
     for (i = 0; i < s; i++) {
         newLine = "";
-        re = &(regexp_list[i]);
+        re = (regexp_list[i]);
         if (re->match(line.toCharArray(), Rre)) {
             repstr = replacement_list[i];
             matches = Rre.numberOfMatches();
@@ -827,7 +837,7 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
             i->chop();
             chop = true;
         }
-        result |= regExp(*i, listi.comp, listi.replace);
+        result |= regExp(*i, (listi.comp), listi.replace);
         if (chop)
             i->append("\r");
     }

@@ -341,18 +341,18 @@ ListContainer::ifsreadItemList(const char *filename, std::istream *input, String
     unsigned int mem_used = 2;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
-    RegResult Rre;
+    //RegResult Rre;
     if (is_iplist) {
-#ifdef HAVE_PCRE
-        matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-    matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
-    matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-#else
+#ifdef HAVE_NO_PCRE
         matchIP.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
         matchSubnet.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
         matchCIDR.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$");
         matchRange.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}-[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+#else
+        matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+        matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+        matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
+        matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 #endif
     }
 
@@ -451,7 +451,7 @@ ListContainer::ifsreadItemList(const char *filename, std::istream *input, String
             }
             if (filters == 1) { // remove port addresses
                 if (temp.before("/").contains(":")) { // quicker than full regexp
-                    if (re.match(temp.toCharArray(), Rre)) {
+                    if (re.match(temp.toCharArray())) {
                         hostname = temp.before(":");
                         url = temp.after("/");
                         temp = hostname;
@@ -675,7 +675,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
     std::string linebuffer;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
-    RegResult Rre;
+    //RegResult Rre;
     size_t len = 2046;
     if (!increaseMemoryBy(20000)) { // Allocate some memory to hold list
         E2LOGGER_error("Memory allocation failed");
@@ -1547,16 +1547,16 @@ bool ListContainer::addToTimeList(String &line) {
 void ListContainer::addToIPList(String &line) {
     if (is_map) return addToIPMap(line);
 
-    RegResult Rre;
+   // RegResult Rre;
 
     // store the IP address (numerically, not as a string) and filter group in either the IP list or range list
-    if (matchIP.match(line.toCharArray(), Rre)) {
+    if (matchIP.match(line.toCharArray())) {
         struct in_addr address;
         if (inet_aton(line.toCharArray(), &address)) {
             uint32_t addr = ntohl(address.s_addr);
             iplist.push_back(addr);
         }
-    } else if (matchSubnet.match(line.toCharArray(), Rre)) {
+    } else if (matchSubnet.match(line.toCharArray())) {
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(line.before("/"));
@@ -1568,7 +1568,7 @@ void ListContainer::addToIPList(String &line) {
             s.endaddr = s.startaddr | ~imask;
             iprangelist.push_back(s);
         }
-    } else if (matchCIDR.match(line.toCharArray(), Rre)) {
+    } else if (matchCIDR.match(line.toCharArray())) {
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(line.before("/"));
@@ -1585,7 +1585,7 @@ void ListContainer::addToIPList(String &line) {
                 iprangelist.push_back(s);
             }
         }
-    } else if (matchRange.match(line.toCharArray(), Rre)) {
+    } else if (matchRange.match(line.toCharArray())) {
         struct in_addr addressstart;
         struct in_addr addressend;
         String start(line.before("-"));
@@ -1627,7 +1627,7 @@ void ListContainer::addToDataMap(String &line) {
 }
 
 void ListContainer::addToIPMap(String &line) {
-    RegResult Rre;
+    //RegResult Rre;
     String key, value;
 
     // split into key & value
@@ -1651,7 +1651,7 @@ void ListContainer::addToIPMap(String &line) {
     }
 
     // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
-    if (matchIP.match(key.toCharArray(), Rre)) {
+    if (matchIP.match(key.toCharArray())) {
 //        std::cerr << "Is straigth IP " << key << std::endl;
         struct in_addr address;
         auto aton_res = inet_aton(key.toCharArray(), &address);
@@ -1660,7 +1660,7 @@ void ListContainer::addToIPMap(String &line) {
             ipmap tmap(ntohl(address.s_addr), value);
             ipmaplist.push_back(tmap);
         }
-    } else if (matchSubnet.match(key.toCharArray(), Rre)) {
+    } else if (matchSubnet.match(key.toCharArray())) {
 //        std::cerr << "Is subnet IP " << key << std::endl;
         struct in_addr address;
         struct in_addr addressmask;
@@ -1674,7 +1674,7 @@ void ListContainer::addToIPMap(String &line) {
             s.group = value;
             ipmaprangelist.push_back(s);
         }
-    } else if (matchCIDR.match(key.toCharArray(), Rre)) {
+    } else if (matchCIDR.match(key.toCharArray())) {
 //        std::cerr << "Is CIDR " << key << std::endl;
         struct in_addr address;
         struct in_addr addressmask;
@@ -1693,7 +1693,7 @@ void ListContainer::addToIPMap(String &line) {
                 ipmaprangelist.push_back(s);
             }
         }
-    } else if (matchRange.match(key.toCharArray(), Rre)) {
+    } else if (matchRange.match(key.toCharArray())) {
 //        std::cerr << "Is IP range " << key << std::endl;
         struct in_addr addressstart;
         struct in_addr addressend;

@@ -120,8 +120,10 @@ Optional Features:
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-static-zlib[=no]
                           Enable static linking of zlib
-  --enable-pcre[=yes]
-                          Enable support for the PCRE library
+  --enable-pcre[=no]
+                          Enable support for the PCRE 1 library
+  --enable-pcre2[=no]
+                          Enable support for the PCRE 2 library
   --enable-lfs[=yes]
                           Enable large file support on 32 bit systems
   --enable-clamd[=no]
@@ -148,8 +150,10 @@ Optional Packages:
 			  do not use PACKAGE (same as --with-PACKAGE=no)
   --with-zlib[=NONE]
                           non-standard search path for zlib library
-  --with-e2debug[=off]
-                          switch on debug build mode
+  --with-debug_high[=on]
+                          switch on high level debug build mode
+  --with-debug_low[=off]
+                          switch on low level debug build mode - for test debuging use only
   --with-proxyuser[=nobody]
                           name of proxy user
   --with-proxygroup[=nobody]
@@ -215,7 +219,7 @@ Other Packages suggests to E2guardian: squid, clamav, clamav-freshclam
 Autogen is needed !
 
 Eg:
-./autogen.sh && ./configure  '--prefix=/usr' '--sysconfdir=/etc' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian'  '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2' && make
+./autogen.sh && ./configure  '--prefix=/usr' '--sysconfdir=/etc' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian'  '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes'  'CPPFLAGS=-mno-sse2 -g -O2' && make
 
 NETBSD:
 -------

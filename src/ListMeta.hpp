@@ -62,7 +62,7 @@ class ListMeta
         unsigned int type;
         unsigned int method_type;
         unsigned int list_ref;
-        std::deque<RegExp> comp;
+        std::deque<RegExp *> comp;
         std::deque<String> source;
         std::deque<String> replace;
         std::deque<unsigned int> reg_list_ref;
@@ -131,15 +131,15 @@ class ListMeta
            bool is_map = false);
 
    bool readRegExReplacementFile(const char *filename, const char *pwd, const char *listname, unsigned int &listid,
-       std::deque<String> &list_rep, std::deque<RegExp> &list_comp);
+       std::deque<String> &list_rep, std::deque<RegExp*> &list_comp);
 
 private:
 
     bool inURLList(String &url, unsigned int list,  String &lastcategory, bool &site_wild, String &match, String &result);
     bool inSiteList(String &url, unsigned int list,  String &lastcategory, bool &site_wild, String &match, String &result);
     bool inSearchList(String &words, unsigned int list,String &lastcategory, String &match, String &result);
-    int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
-bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);
+    int   inRegExpURLList(String &url, std::deque<RegExp*> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
+bool regExp(String &line, std::deque<RegExp *> &regexp_list, std::deque<String> &replacement_list);
     bool headerRegExpReplace(ListMeta::list_info &listi, std::deque<String> &header, list_result &res );
     int inHeaderRegExp(list_info &listi, std::deque<String> &header, list_result &res, String &lastcategory );
     bool isIPHostname(String url);
@@ -147,8 +147,8 @@ bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &r
     RegExp isiphost;
     bool precompileregexps();
     bool readRegExMatchFile(const char *filename, const char *pwd, const char *listname, unsigned int &listref,
-        std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
-    bool compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
+        std::deque<RegExp*> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
+    bool compileRegExMatchFile(unsigned int list, std::deque<RegExp*> &list_comp,
         std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
 
 };

@@ -1439,12 +1439,14 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
     if (s.length() < 3) {
         return s;
     }
-    DEBUG_trace("decoding url");
+    DEBUG_trace("decoding url", s);
     RegResult Rre;
     if (!urldecode_re.match(s.c_str(),Rre)) {
+        //E2LOGGER_warning("match returned false for ",s);
         return s;
     } // exit if not found
 
+    //E2LOGGER_warning("match returned  ",Rre.numberOfMatches(), "matches for", s);
     int match;
     int offset;
     int pos = 0;
@@ -1459,7 +1461,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         n = Rre.result(match).c_str();
         n.lop(); // remove %
         result += hexToChar(n, decodeAll);
-        // DEBUG_debug("encoded: ", Rre.result(match), " decoded: ", hexToChar(n), " string so far: ", result);
+     //   E2LOGGER_warning("encoded: ", Rre.result(match), " decoded: ", hexToChar(n), " string so far: ", result);
         pos = offset + 3;
     }
     if (size > pos) {

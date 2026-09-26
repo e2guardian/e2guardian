@@ -5,7 +5,7 @@
 # 
 
 #"^http://[0-9a-z]+\.google\.[a-z]+[-%.0-9a-z]*/complete"
-"^http://www.google.com/complete"
-"^http://www.google.co.uk/complete"
+"^https?://www.google.com/complete"
+"^https?://www.google.co.uk/complete"
 
 

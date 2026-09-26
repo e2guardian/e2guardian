@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the pre-release version - v5.6.0r
+This is the pre-release version - v5.6.1r
 
 
 Note: Some configuration files in this version are not fully backward compatible
