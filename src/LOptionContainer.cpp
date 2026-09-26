@@ -276,7 +276,7 @@ void LOptionContainer::deleteFilterGroups()
 {
     for (int i = 0; i < numfg; i++) {
         if (fg[i] != NULL) {
-            DEBUG_debug("In deleteFilterGroups loop");
+          //  DEBUG_debug("In deleteFilterGroups loop");
             delete fg[i]; // delete extra FOptionContainer objects
             fg[i] = NULL;
         }

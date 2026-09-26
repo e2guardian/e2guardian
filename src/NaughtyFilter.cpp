@@ -21,7 +21,8 @@
 
 extern OptionContainer o;
 
-#ifdef HAVE_PCRE
+#ifndef HAVE_NO_PCRE
+//TODO: these don't appear to be used any where - remove them??
 extern RegExp absurl_re, relurl_re;
 #endif
 
@@ -137,17 +138,23 @@ void NaughtyFilter::reset()
     isGrey = false;
     isSSLGrey = false;
     isSearch = false;
+    isBlocked = false;
+    isReturn = false;
     message_no = 0;
     is_text = false;
     filtergroup = 0;
+    hasEmbededURL = false;
+    embededURLs.clear();
     deep_urls_checked = false;
     has_deep_urls = false;
+    deep_urls.clear();
     issiteonly = false;
 
-    gomitm = false;
-    nomitm = false;
-    automitm = false;
-    // resets from CH
+    //gomitm = false;
+    //nomitm = false;
+    //automitm = false;
+    // resets from CHA
+    alert = false;
     waschecked = false; // flags
     wasrequested = false;
     isexception = false;
@@ -169,23 +176,30 @@ void NaughtyFilter::reset()
     urlmodified = false;
     headermodified = false;
     headeradded = false;
+    scanerror = false;
+    isdone = false;
+    nolog = false;
     nocheckcert = false;
     noviruscheck = true;
+    urlredirect = false;
+    tunnel_rest = false;
+    tunnel_2way = false;
+    is_text = false;
+    search_terms = "";
+    search_words = "";
+    mimetype = "-";
     headersent = 0;
     message_no = 0;
     log_message_no = 0;
-    urlredirect = false;
     logcategory = false;
     upfailure = false;
     isdirect = o.net.no_proxy;  // always set if no proxy defined
     //            authed = false;
     //            isbanneduser = false;
-    mimetype = "-";
     docsize = 0; // to store the size of the returned document for logging
     orig_ip = "";
     orig_port = 0;
     got_orig_ip = false;
-
 }
 
 // check the given document body for banned, weighted, and exception phrases (and PICS, and regexes, &c.)
@@ -567,11 +581,11 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 // if a src/href URL starts with a /, append it to the domain; otherwise, append it to the existing URL.
 // chop off anything after a ?, run through realPath, then put through the URL lists.
 
-#ifdef HAVE_PCRE
+#ifndef HAVE_NO_PCRE
     // if weighted phrases are enabled, and we have been passed a URL and domain, and embedded URL checking is enabled...
     // then check for embedded URLs!
 #ifdef LEAVE_OUT_FOR_NOW
-    // TODO - THIS SECTION DISABLED IN V5 - REVIISIT LATER IF NEEDED
+    // TODO - THIS SECTION DISABLED IN V5 - REVISIT LATER IF NEEDED
     if (url != NULL && foc->embedded_url_weight > 0) {
         std::map<int, listent>::iterator ourcat;
         bool catinited = false;
@@ -1013,7 +1027,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 bool NaughtyFilter::isIPHostnameStrip(String url)
 {
     url = url.getHostname();
-    if(ch_isiphost.match(url.toCharArray(), Rch_isiphost))
+    if(ch_isiphost.match(url.toCharArray()))
         return false;
     else
         return true;

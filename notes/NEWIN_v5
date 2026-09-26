@@ -114,7 +114,7 @@ lists to be loaded via stdin.  See notes/lists_via_stdin.
 OPENSSL v1.1 SUPPORT
 
     Supports OpenSSL v1.1 
-    Note: Support for pre v1.1 OpenSSL versions is withdrawn in v5.5.
+    Note: Support for pre v1.1 OpenSSL versions was withdrawn in v5.5.
 
 % OPTION FOR PHRASE LISTS
 
@@ -126,7 +126,8 @@ BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
 
 Requests without SNI and those not TLS no longer tried for MITM.
 
-New option to use original ip & port (currently Linux only)
+New option to use original ip & port
+    (currently stable under Linux only, testable in BSD/PF with --enable-pf_fw option)
 
 RELATIVE PATHS IN .Includes and list definition
 
@@ -203,7 +204,9 @@ OTHER enhancements
  alert.log option to enable reporting of key category violations by external email alert and reporting systems
 
  'Auto' MITM certificate generation implimented
-    
+
+ New --enable-pcre2 build option
+
 
 TESTING -  
 ---------

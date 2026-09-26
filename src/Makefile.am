@@ -55,7 +55,7 @@ endif
 
 sbin_PROGRAMS = e2guardian
 
-e2guardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS) -Wall
+e2guardian_CXXFLAGS = $(OPENSSL_CFLAGS) $(PCRE_CFLAGS) $(AM_CXXFLAGS) -Wall
 e2guardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)
 e2guardian_CPPFLAGS = -D__LOGLOCATION='"$(E2LOGLOCATION)/"' \
 			-D__PIDDIR='"$(E2PIDDIR)"' \

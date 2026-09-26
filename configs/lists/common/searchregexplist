@@ -5,36 +5,36 @@
 #   left is the site matching pattern
 #   right is the search words
 
-"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)\&.*"->"\1"
-"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*).*"->"\1"
-"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)"->"\1"
-"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*)"->"\1"
+"^https?://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)\&.*"->"\1"
+"^https?://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)"->"\1"
+"^https?://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*)"->"\1"
 
-"^http://www\.qwant\.com/.*\?q=([^&]*)\&.*"->"\1"
-"^http://www\.qwant\.com/.*\&q=([^&]*).*"->"\1"
-"^http://www\.qwant\.com/.*\?q=([^&]*)"->"\1"
-"^http://www\.qwant\.com/.*\&q=([^&]*)"->"\1"
-"^http://api\.qwant\.com/.*\?q=([^&]*)\&.*"->"\1"
-"^http://api\.qwant\.com/.*\&q=([^&]*).*"->"\1"
-"^http://api\.qwant\.com/.*\?q=([^&]*)"->"\1"
-"^http://api\.qwant\.com/.*\&q=([^&]*)"->"\1"
+"^https?://www\.qwant\.com/.*\?q=([^&]*)\&.*"->"\1"
+"^https?://www\.qwant\.com/.*\&q=([^&]*).*"->"\1"
+"^https?://www\.qwant\.com/.*\?q=([^&]*)"->"\1"
+"^https?://www\.qwant\.com/.*\&q=([^&]*)"->"\1"
+"^https?://api\.qwant\.com/.*\?q=([^&]*)\&.*"->"\1"
+"^https?://api\.qwant\.com/.*\&q=([^&]*).*"->"\1"
+"^https?://api\.qwant\.com/.*\?q=([^&]*)"->"\1"
+"^https?://api\.qwant\.com/.*\&q=([^&]*)"->"\1"
 
-"^http://duckduckgo.com/\?q=([^&]*)\&.*"->"\1"
-"^http://duckduckgo.com/.*\&q=([^&]*).*"->"\1"
-"^http://duckduckgo.com/\?q=([^&]*)"->"\1"
-"^http://duckduckgo.com/.*\&q=([^&]*)"->"\1"
+"^https?://duckduckgo.com/\?q=([^&]*)\&.*"->"\1"
+"^https?://duckduckgo.com/.*\&q=([^&]*).*"->"\1"
+"^https?://duckduckgo.com/\?q=([^&]*)"->"\1"
+"^https?://duckduckgo.com/.*\&q=([^&]*)"->"\1"
 
-"^http://[0-9a-z]+\.youtube\.[a-z]+[-/%.0-9a-z]*\?search_query=([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.youtube\.[a-z]+[-/%.0-9a-z]*\?search_query=([^&]*).*"->"\1"
 
-"^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*\?p=([^&]*).*"->"\1"
-"^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*.*\&p=([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*\?p=([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*.*\&p=([^&]*).*"->"\1"
 
-"^http://[0-9a-z]+\.answers\.[a-z]+[-/%.0-9a-z]*\?s=([^&]*)\&.*"->"\1"
-"^http://www\.answers\.[a-z]+[-%.0-9a-z]*/([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.answers\.[a-z]+[-/%.0-9a-z]*\?s=([^&]*)\&.*"->"\1"
+"^https?://www\.answers\.[a-z]+[-%.0-9a-z]*/([^&]*).*"->"\1"
 
-"^http://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*/search\?q=([^&]*).*"->"\1"
-"^http://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*\&q=([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*/search\?q=([^&]*).*"->"\1"
+"^https?://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*\&q=([^&]*).*"->"\1"
 
-"^http://www.kiddle.co/s.php\?q=([^&]*)\&.*"->"\1"
-"^http://www.kiddle.co/s.php\?q=([^&]*)"->"\1"
+"^https?://www.kiddle.co/s.php\?q=([^&]*)\&.*"->"\1"
+"^https?://www.kiddle.co/s.php\?q=([^&]*)"->"\1"
 

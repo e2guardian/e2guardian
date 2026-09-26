@@ -89,6 +89,10 @@ void FOptionContainer::resetJustListData()
 
     //	conffile.clear();
 
+    while(!content_regexp_list_comp.empty()) {
+        delete content_regexp_list_comp.front();
+        content_regexp_list_comp.pop_front();
+    }
     content_regexp_list_comp.clear();
     content_regexp_list_rep.clear();
 }
@@ -450,6 +454,7 @@ bool FOptionContainer::read(const char *filename) {
             if (html_template != "") {
                 html_template = o.config.languagepath + html_template;
                 banned_page = new HTMLTemplate;
+                DEBUG_config("new HTMLTemplate created ");
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
@@ -457,6 +462,7 @@ bool FOptionContainer::read(const char *filename) {
             } else {
                 html_template = o.config.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
+                DEBUG_config("new HTMLTemplate created ");
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
                     return false;
@@ -479,7 +485,7 @@ bool FOptionContainer::read(const char *filename) {
                     E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);
                     return false;
 	        }
-	    } 
+	    }
         }
 
         if (findoptionS("nonstandarddelimiter") == "off") {
