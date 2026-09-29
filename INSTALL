@@ -219,7 +219,7 @@ Other Packages suggests to E2guardian: squid, clamav, clamav-freshclam
 Autogen is needed !
 
 Eg:
-./autogen.sh && ./configure  '--prefix=/usr' '--sysconfdir=/etc' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian'  '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes'  'CPPFLAGS=-mno-sse2 -g -O2' && make
+./autogen.sh && ./configure  '--prefix=/usr' '--sysconfdir=/etc' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian'  '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre2=yes' '--enable-pcre=no'  'CPPFLAGS=-mno-sse2 -g -O2' && make
 
 NETBSD:
 -------
@@ -323,5 +323,4 @@ list available for those that do not find the answers to their questions
 from the url above. The mailing list can be found at the url.  Please
 DO NOT email the authors for support as you will be just directed at the
 mailing list.
-
 
