@@ -540,7 +540,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     // ldl = o.currentLists();
 
     HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
-    HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
+    HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request header
 
     // set a timeout as we don't want blocking 4 eva
     // this also sets how long a peerconn will wait for other requests
@@ -694,10 +694,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 proxysock.resetChunk();
 
             }
-//
-            // do this normalisation etc just the once at the start.
-            checkme.setURL(ismitm);
 
+            // do this normalisation etc just the once at the start.
+            // Note: This sets up url and many settings in checkme, including isconnect, ishead
+            checkme.set_from_request(ismitm);
+            //DEBUG_proxy("checkme.isconnect is ",checkme.isconnect, " isItNaughty is ", checkme.isItNaughty,
+            //            " ishead ", checkme.ishead);
             if(o.log.log_requests) {
             //if (e2logger.isEnabled(LoggerSource::requestlog)) {
                 std::string fnt;
@@ -860,6 +862,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 SBauth.group_source = "def";
                 DEBUG_proxy("isProxyRequest is ", String(header.isProxyRequest),
                             " only_ip_auth is ", String(only_ip_auth) );
+                DEBUG_proxy("checkme.isconnect is ",checkme.isconnect, "isItNaughty is ", checkme.isItNaughty);
 
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock,
                             header, checkme,
@@ -939,7 +942,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // End by pass
             //
-
             // virus checking candidate?
             // checkme.noviruscheck defaults to true
             if (!(checkme.isdone || checkme.isconnect || checkme.ishead)    //  can't scan connect or head or not yet authed
@@ -1112,7 +1114,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                 if (docheader.in_handle_100(&proxysock, persistOutgoing, false) &&
                                     docheader.returncode == 100) { // get response header
                                     DEBUG_proxy(
-                                            "somethig whent wroung with expoect 100 logic");  // should be now proper return header!!!
+                                            "something whent wrong with expect 100 logic");  // should be now proper return header!!!
                                 }
                             }
                         }
@@ -1228,7 +1230,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     check_content(checkme, docbody, proxysock, peerconn, responsescanners);
                 }
             }
-
             //send response header to client(yments
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && !(checkme.isconnect && checkme.isdirect)) {
                 if (!docheader.out(NULL, &peerconn, __E2HEADER_SENDALL, false)) {
@@ -1296,11 +1297,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //if not grey tunnel response
             if (!checkme.isItNaughty) {
                 if (checkme.tunnel_rest) {
-                    bool chunked = docheader.transferEncoding().contains("chunked");
+                    int left_to_tunnel = 0;
+                    bool chunked =  false;
+                    if(!checkme.ishead) {
+                        chunked = docheader.transferEncoding().contains("chunked");
+                        left_to_tunnel =  docheader.contentLength() - checkme.docsize;
+                    }
                     DEBUG_proxy(" -Tunnelling to client");
-                    DEBUG_proxy(" - Content-Length:", docheader.contentLength(), " cm.docsize:", checkme.docsize);
+                    DEBUG_proxy(" - Content-Length:", left_to_tunnel, " cm.docsize:", checkme.docsize);
 
-                    if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, docheader.contentLength() - checkme.docsize,
+                    if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, left_to_tunnel,
                                     true, chunked))
                         persistProxy = false;
                     checkme.docsize += fdt.throughput;
@@ -3640,7 +3646,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     bool authed = false;
     String clientip = ip;
     // do all of this normalisation etc just the once at the start.
-    checkme.setURL();
+    checkme.set_from_request();
     String res_hdr, res_body, req_hdr, req_body;
 
     // checks for bad URLs to prevent security holes/domain obfuscation.
@@ -3875,7 +3881,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         // DEBUG_debug("is CONNECT logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
         if (checkme.connect_site != checkme.urldomain) {
             icaphead.HTTPrequest.setConnect(checkme.connect_site);
-            // DEBUG_debug("after setURL logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
+            // DEBUG_debug("after set_from_request logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
         }
     }
     // TODO V5 call POST scanning code New NaughtyFilter function????
@@ -3922,7 +3928,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     std::deque<CSPlugin *> responsescanners;
 
     // do all of this normalisation etc just the once at the start.
-    checkme.setURL();
+    checkme.set_from_request();
 
     overide_persist = false;
     if (icaphead.icap_com.filtergroup < 0)    //i.e. no X-ICAP-E2G

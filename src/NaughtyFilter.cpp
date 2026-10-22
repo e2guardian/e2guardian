@@ -77,7 +77,7 @@ NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response, auth_rec
     ch_isiphost.comp(",*[a-z|A-Z].*");
     reset();
 }
-void NaughtyFilter::setURL(bool set_ismitm) {
+void NaughtyFilter::set_from_request(bool set_ismitm) {
     // do all of this normalisation etc just the once at the start.
     url = request_header->getUrl(false, false);
     baseurl = url;

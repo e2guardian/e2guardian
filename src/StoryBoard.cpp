@@ -489,6 +489,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_POST:
                 state_result = (cm.request_header->requestType() == "POST");
                 break;
+            case SB_STATE_HEAD:
+                state_result = cm.ishead;
+                break;
+            case SB_STATE_PUT:
+                state_result = (cm.request_header->requestType() == "PUT");
+                break;
             case SB_STATE_EXCEPTIONSET:
                 state_result = cm.isexception;
                 break;

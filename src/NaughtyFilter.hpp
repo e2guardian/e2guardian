@@ -184,7 +184,7 @@ class NaughtyFilter
     NaughtyFilter(HTTPHeader &request, HTTPHeader &response, auth_rec &authrecin);
     void reset();
 
-    void setURL(bool set_ismitm = false);
+    void set_from_request(bool set_ismitm = false);
     void setURL(String &sni);
 
     void checkme(const char *rawbody, off_t rawbodylen, const String *url, const String *domain,
