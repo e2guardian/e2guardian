@@ -545,7 +545,7 @@ void HTTPHeader::setConnect(String &con_site) {
 }
 
 // modifies the URL in all relevant header lines after a regexp search and replace
-// setURL Code originally from from Ton Gorter 2004
+// set_from_request Code originally from from Ton Gorter 2004
 void HTTPHeader::setURL(String &url)
 {
     String hostname;
@@ -570,7 +570,7 @@ void HTTPHeader::setURL(String &url)
         hostname = hostname.before(":"); // chop off the port bit
     }
 
-    DEBUG_debug("setURL: header.front() changed from: ", header.front());
+    DEBUG_debug("set_from_request: header.front() changed from: ", header.front());
     if (https && header.front().startsWith("CONNECT"))
         // Should take form of "CONNECT example.com:443 HTTP/1.0" for SSL
         header.front() = header.front().before(" ") + " " + hostname + ":" + String(port) + " " + header.front().after(" ").after(" ");
@@ -580,7 +580,7 @@ void HTTPHeader::setURL(String &url)
     DEBUG_debug(" to: ", header.front());    
 
     if (phost != NULL) {
-        DEBUG_debug("setURL: header[] line changed from: ", (*phost));
+        DEBUG_debug("set_from_request: header[] line changed from: ", (*phost));
         (*phost) = String("Host: ") + hostname;
         if (port != (https ? 443 : 80)) {
             (*phost) += ":";
@@ -590,7 +590,7 @@ void HTTPHeader::setURL(String &url)
         DEBUG_debug(" to ", (*phost));
     }
     if (pport != NULL) {
-        DEBUG_debug("setURL: header[] line changed from: ", (*pport));
+        DEBUG_debug("set_from_request: header[] line changed from: ", (*pport));
         (*pport) = String("Port: ") + String(port) + "\r";
         DEBUG_debug(" to ", (*pport));
     }

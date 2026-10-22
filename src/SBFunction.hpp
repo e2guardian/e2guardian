@@ -25,50 +25,54 @@
 
 //  STATES indicates test to be performed
 
-// xIN states takes list as argument and checks if x is in list
-#define SB_STATE_URLIN		1
-#define SB_STATE_SITEIN		2
-#define SB_STATE_SEARCHIN	3
-#define SB_STATE_EMBEDDEDIN	4
-#define SB_STATE_REFERERIN	5
-#define SB_STATE_HEADERIN	6
-#define SB_STATE_FULLURLIN	 7
-#define SB_STATE_EXTENSIONIN	 8
-#define SB_STATE_MIMEIN	 9
-#define SB_STATE_CLIENTIN	 10
-#define SB_STATE_USERAGENTIN	 11
-#define SB_STATE_TIMEIN			 12
-#define SB_STATE_USERIN			 13
-#define SB_STATE_LISTEN_PORTIN			 14
+// xIN states takes list group name as argument and checks if x is in lists
+#define SB_STATE_URLIN		    1
+#define SB_STATE_SITEIN		    2
+#define SB_STATE_SEARCHIN	    3
+#define SB_STATE_EMBEDDEDIN	    4
+#define SB_STATE_REFERERIN	    5
+#define SB_STATE_HEADERIN	    6
+#define SB_STATE_FULLURLIN	    7
+#define SB_STATE_EXTENSIONIN    8
+#define SB_STATE_MIMEIN	        9
+#define SB_STATE_CLIENTIN	    10
+#define SB_STATE_USERAGENTIN	11
+#define SB_STATE_TIMEIN			12
+#define SB_STATE_USERIN			13
+#define SB_STATE_LISTEN_PORTIN	14
 #define SB_STATE_RESHEADERIN	15
 #define SB_STATE_CATEGORYIN		16
+#define SB_STATE_DESTIPIN		17   // not used in v5.5
+#define SB_STATE_RESPONSECODEIN  18   // not used in v5.5
 
-#define SB_STATE_TOPIN      17   // all below this require a valid list
+#define SB_STATE_TOPIN          19   // all below this require a valid list
 
 // Check type of request
-#define SB_STATE_CONNECT	17
-#define SB_STATE_POST			18
-#define SB_STATE_GET				19
-#define SB_STATE_SITEISIP       20
-#define SB_STATE_TLS				21
+#define SB_STATE_CONNECT    	19
+#define SB_STATE_POST			20
+#define SB_STATE_GET			21
+#define SB_STATE_HEAD           22
+#define SB_STATE_PUT            23
+#define SB_STATE_SITEISIP       24
+#define SB_STATE_TLS			25
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	22
-#define SB_STATE_GREYSET	23
-#define SB_STATE_BLOCKSET	24
-#define SB_STATE_MITMSET        25
-#define SB_STATE_DONESET       26
-#define SB_STATE_RETURNSET       27
-#define SB_STATE_TRUE				28
-#define SB_STATE_HASSNI			29
-#define SB_STATE_REDIRECTSET 30
-#define SB_STATE_VIRUSCHECKSET 31
-#define SB_STATE_BYPASSSET  32
-#define SB_STATE_BYPASSALLOWEDSET  33
-#define SB_STATE_INFECTIONBYPASSALLOWEDSET  34
-#define SB_STATE_SEMIEXCEPTIONSET	35
+#define SB_STATE_EXCEPTIONSET	26
+#define SB_STATE_GREYSET	27
+#define SB_STATE_BLOCKSET	28
+#define SB_STATE_MITMSET        29
+#define SB_STATE_DONESET       30
+#define SB_STATE_RETURNSET       31
+#define SB_STATE_TRUE				32
+#define SB_STATE_HASSNI			33
+#define SB_STATE_REDIRECTSET 34
+#define SB_STATE_VIRUSCHECKSET 35
+#define SB_STATE_BYPASSSET  36
+#define SB_STATE_BYPASSALLOWEDSET  37
+#define SB_STATE_INFECTIONBYPASSALLOWEDSET  38
+#define SB_STATE_SEMIEXCEPTIONSET	39
 
-#define SB_STATE_MAP_SIZE  35
+#define SB_STATE_MAP_SIZE  39
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -129,9 +133,13 @@ class SBFunction
 			 "listenportin",
              "responseheaderin",
 			 "categoryin",
+             "destipin",
+             "responsecodein",
 			"connect",
 			 "post",
 			 "get",
+             "head",
+             "put",
 			 "siteisip",
 			 "tls",
 			"exceptionset",

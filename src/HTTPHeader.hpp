@@ -166,7 +166,7 @@ class HTTPHeader
     // make the request look as if its coming from the origin server
     void makeTransparent(bool incoming);
     // modifies the URL in all relevant header lines after a regexp search and replace
-    // setURL Code originally from from Ton Gorter 2004
+    // set_from_request Code originally from from Ton Gorter 2004
     void setURL(String &url);
 
     // modifies connect site only - leaves other headers alone
