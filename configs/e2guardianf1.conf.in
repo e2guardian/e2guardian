@@ -937,7 +937,7 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 # affected by the weightedphrasemode setting.
 #
 # NB: Currently, this feature uses regular expressions that require the PCRE library.
-# As such, it is only available if you compiled e2guardian with '--enable-pcre=yes'.
+# As such, it is only available if you compiled e2guardian with PCRE2 support.
 # You can check compile-time options by running 'e2guardian -v'.
 #
 # Set to 0 to disable.
