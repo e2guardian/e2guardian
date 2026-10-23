@@ -102,17 +102,17 @@ class HTTPHeader
     bool isHeaderAdded(FOptionContainer* &foc);
     bool addheaderchecked;
     bool isheaderadded;
-    String *plogheadervalue;
-    String *pheaderident;
-    String *ptransfercoding;
-    String *ptransferencoding;
+    String *plogheadervalue = nullptr;
+    String *pheaderident = nullptr;
+    String *ptransfercoding = nullptr;
+    String *ptransferencoding = nullptr;
     std::string getAuthHeader();
     // see if search usl and set searchwords
     bool isSearch(FOptionContainer* &foc);
     String searchwords();
     String searchterms();
-    bool searchchecked;
-    bool chunked;
+    bool searchchecked = false;
+    bool chunked = false;
     bool expects_100 = false;
     String contentEncoding();
     String transferEncoding();
