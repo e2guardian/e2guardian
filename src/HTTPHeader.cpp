@@ -59,21 +59,22 @@ void HTTPHeader::reset()
         isdirect = false;
         chunked = false;
 
-        phost = NULL;
-        pport = NULL;
-        pcontentlength = NULL;
-        pcontenttype = NULL;
-        pproxyauthorization = NULL;
-        pauthorization = NULL;
-        pproxyauthenticate = NULL;
-        pcontentdisposition = NULL;
-        puseragent = NULL;
-        pxforwardedfor = NULL;
-        pcontentencoding = NULL;
-        ptransfercoding = NULL;
-        ptransferencoding = NULL;
-        pproxyconnection = NULL;
-        pkeepalive = NULL;
+        phost = nullptr;
+        pport = nullptr;
+        pcontentlength = nullptr;
+        pcontenttype = nullptr;
+        pproxyauthorization = nullptr;
+        pauthorization = nullptr;
+        pproxyauthenticate = nullptr;
+        pcontentdisposition = nullptr;
+        puseragent = nullptr;
+        pxforwardedfor = nullptr;
+        pcontentencoding = nullptr;
+        ptransfercoding = nullptr;
+        ptransferencoding = nullptr;
+        pproxyconnection = nullptr;
+        pkeepalive = nullptr;
+        pheaderident = nullptr;
 
         useragent = "";
         contenttype = "";
@@ -312,7 +313,7 @@ std::string HTTPHeader::getAuthData()
 
 std::string HTTPHeader::getAuthHeader()
 {
-    if (pheaderident != NULL) {
+    if (pheaderident != nullptr) {
         String line (pheaderident->after(" "));
         line.resize(line.length() - 1);
         return line;
@@ -958,7 +959,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
    //     if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
     //        plogheadervalue = &(*i);
      //   }
-        if ((o.header.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.header.ident_header_value)) {
+        if ((o.header.ident_header_value.size() != 0) && outgoing && (pheaderident == nullptr) && i->startsWithLower(o.header.ident_header_value)) {
             pheaderident = &(*i);
         }
 
