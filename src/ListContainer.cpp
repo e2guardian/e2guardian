@@ -176,8 +176,11 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
             // been marked as not to be converted
             if (caseinsensitive)
                 line.toLower();
-            if (line.startsWith("<"))
+            if (line.startsWith("<")) {
+                // Protect escaped greater-than characters from the phrase delimiter parser.
+                line.replaceall("\\>", "\x1e");
                 readPhraseListHelper(line, isexception, catindex, timeindex, nlimit);
+            }
                 // handle included list files
             else if (line.startsWith(".")) {
                 temp = line.after(".include<").before(">");
@@ -288,6 +291,7 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
         return;
     }
 
+    phrase.replaceall("\x1e", ">");
     phrase.removePunctuation();
 
     if (phrase.length() > 127) {
